@@ -4,39 +4,22 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/jackc/pgx"
 )
 
-func initDB(connPool *pgx.ConnPool) error {
-	dir, err := os.Open(".")
+func execFile(fileName string, connPool *pgx.ConnPool) error {
+
+	pd, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		log.Fatal(err)
 		return err
 	}
-
-	files, err := dir.Readdirnames(-1)
+	_, err = connPool.Exec(string(pd))
 	if err != nil {
 		log.Fatal(err)
-		return err
 	}
-
-	for _, val := range files {
-		if !strings.HasSuffix(val, ".sql") {
-			continue
-		}
-		pd, err := ioutil.ReadFile(val)
-		if err != nil {
-			log.Fatal(err)
-			return err
-		}
-		_, err = connPool.Exec(string(pd))
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	log.Println("Inited")
+	log.Println("DONE")
 	return nil
 }
 
@@ -54,5 +37,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	initDB(connPool)
+
+	execFile(os.Args[1], connPool)
 }
