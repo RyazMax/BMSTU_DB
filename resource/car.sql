@@ -1,3 +1,5 @@
+DROP TYPE IF EXISTS car_status;
+
 CREATE TYPE car_status AS ENUM (
     'BUSY',
     'READY',
@@ -10,6 +12,6 @@ CREATE TABLE IF NOT EXISTS CAR (
     seats_count SMALLINT NOT NULL,
     mark varchar(20) NOT NULL,
     model varchar(20) NOT NULL,
-    curr_status CAR_STATUS,
-    curr_location geometry
+    curr_status CAR_STATUS
+    --curr_location geometry
 );
