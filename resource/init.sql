@@ -17,15 +17,15 @@ CREATE TABLE IF NOT EXISTS "USER"  (
     pnumber varchar(30) NOT NULL PRIMARY KEY,
     first_name varchar(30) NOT NULL,
     second_name varchar(30) NOT NULL,
-    patronymic varchar(30) NULL
+    patronymic varchar(30) NULL DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS DRIVER (
     driver_number varchar(30) NOT NULL PRIMARY KEY,
     first_name varchar(30) NOT NULL,
-    patronymic varchar(30) NULL,
-    last_name varchar(30) NOT NULL,
-    rating INTEGER NOT NULL CHECK(rating >= 0 AND rating <=5),
+    patronymic varchar(30) NULL DEFAULT NULL,
+    second_name varchar(30) NOT NULL,
+    rating FLOAT NOT NULL CHECK(rating >= 0 AND rating <=5),
     car_number varchar(30) NOT NULL REFERENCES CAR(cnumber)
 );
 
@@ -33,7 +33,9 @@ CREATE TABLE IF NOT EXISTS DRIVE (
     id BIGSERIAL NOT NULL PRIMARY KEY,
     user_number VARCHAR(30) NOT NULL REFERENCES "USER"(pnumber),
     car_number VARCHAR(10) NOT NULL REFERENCES CAR(cnumber),
-    drive_day TIMESTAMP WITH TIME ZONE NULL CHECK(drive_day < current_timestamp),
+    drive_date TIMESTAMP WITH TIME ZONE CHECK(drive_date <= current_timestamp) DEFAULT current_timestamp,
     duration INTERVAL,
-    price MONEY
+    price MONEY,
+    departure TEXT,
+    destination TEXT
 );

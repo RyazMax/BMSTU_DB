@@ -1,5 +1,7 @@
 package models
 
+import "../database"
+
 // CarStatus - enumeration of possible car statuses
 type CarStatus int
 
@@ -18,5 +20,16 @@ type Car struct {
 	Mark       string
 	Model      string
 	SeatsCount int
-	Status     CarStatus
+	Status     string
+}
+
+// Insert - inserts car in database
+func (c *Car) Insert(db *database.DB) (err error) {
+	_, err = db.Exec("INSERT INTO CAR(cnumber,seats_count,mark,model,curr_status) VALUES($1,$2,$3,$4,$5);",
+		c.Number, c.SeatsCount, c.Mark, c.Model, c.Status)
+	return
+}
+
+func GenerateCar() Car {
+	return Car{}
 }
