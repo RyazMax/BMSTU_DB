@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"./database"
+	"github.com/icrowley/fake"
 
 	"./models"
 )
@@ -19,52 +19,70 @@ type GenerateInfo struct {
 
 func generate(db *database.DB, info GenerateInfo) {
 	// Добавление пользователей
+	const QUANT = 20
+
 	users := make(map[string]bool, 0)
+	userNumbers := make([]string, 0, info.UsersCount)
 	for i := 0; i < info.UsersCount; i++ {
 		usr := models.GenerateUser()
 		for _, exist := users[usr.Pnumber]; exist; {
 			usr = models.GenerateUser()
 		}
+		users[usr.Pnumber] = true
+		userNumbers = append(userNumbers, usr.Pnumber)
 		usr.Insert(db)
+		if i%QUANT == 0 {
+			log.Println("USERS ", i, " added")
+		}
 	}
 
 	// Добавление машин
 	cars := make(map[string]bool, 0)
+	carsNumbers := make([]string, 0, info.CarsCount)
 	for i := 0; i < info.CarsCount; i++ {
 		car := models.GenerateCar()
 		for _, exist := cars[car.Number]; exist; {
 			car = models.GenerateCar()
 		}
+		cars[car.Number] = true
+		carsNumbers = append(carsNumbers, car.Number)
 		car.Insert(db)
+		if i%QUANT == 0 {
+			log.Println("CAR ", i, " added")
+		}
+	}
+
+	// Добавление водителей
+	drivers := make(map[string]bool, 0)
+	driverNumbers := make([]string, 0, info.DriversCount)
+	for i := 0; i < info.DriversCount; i++ {
+		driver := models.GenerateDriver()
+		for _, exist := drivers[driver.Pnumber]; exist; {
+			driver = models.GenerateDriver()
+		}
+		drivers[driver.Pnumber] = true
+		driverNumbers = append(driverNumbers, driver.Pnumber)
+		driver.CarNumber = carsNumbers[i]
+		driver.Insert(db)
+		if i%QUANT == 0 {
+			log.Println("DRIVER ", i, " added")
+		}
+	}
+
+	// Добавление поездки
+	for i := 0; i < info.DrivesCount; i++ {
+		drive := models.GenerateDrive()
+		drive.UserNumber = userNumbers[i]
+		drive.DriverNumber = driverNumbers[i]
+		drive.Insert(db)
+		if i%QUANT == 0 {
+			log.Println("DRIVE ", i, " added")
+		}
 	}
 }
 
 func main() {
+	fake.SetLang("ru")
 	db := database.CreateDB()
-	usr := models.User{Fname: "Максим",
-		Sname:      "Рязанов",
-		Patronymic: "Отчество",
-		Pnumber:    "+79063130227"}
-	log.Println(usr.Insert(db))
-	car := models.Car{Number: "a127pm",
-		Mark:       "Lada",
-		Model:      "2107",
-		SeatsCount: 4,
-		Status:     "OFFLINE"}
-	log.Println(car.Insert(db))
-	driver := models.Driver{Pnumber: "+79190203143",
-		Fname:     "Валерий",
-		Sname:     "Евтюхов",
-		Rating:    3,
-		CarNumber: "a127pm"}
-	log.Println(driver.Insert(db))
-	drive := models.Drive{UserNumber: usr.Pnumber,
-		CarNumber:   car.Number,
-		Departure:   "Москва Измайловский пр-т д 73/2",
-		Destination: "Москва Рубцовская набережная 2",
-		DriveDate:   time.Now(),
-		Duration:    time.Hour * 2,
-		Price:       "300",
-	}
-	log.Println(drive.Insert(db))
+	generate(db, GenerateInfo{UsersCount: 1000, CarsCount: 1000, DriversCount: 1000, DrivesCount: 1000})
 }

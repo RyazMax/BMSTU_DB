@@ -1,3 +1,6 @@
+CREATE EXTENSION IF NOT EXISTS cube;
+CREATE EXTENSION IF NOT EXISTS earthdistance;
+
 CREATE TYPE car_status AS ENUM (
     'BUSY',
     'READY',
@@ -9,8 +12,8 @@ CREATE TABLE IF NOT EXISTS CAR (
     seats_count SMALLINT NOT NULL CHECK(seats_count > 3 AND seats_count < 20),
     mark varchar(20) NOT NULL,
     model varchar(20) NOT NULL,
-    curr_status CAR_STATUS
-    --curr_location geometry
+    curr_status CAR_STATUS,
+    curr_location point
 );
 
 CREATE TABLE IF NOT EXISTS "USER"  (
@@ -32,7 +35,7 @@ CREATE TABLE IF NOT EXISTS DRIVER (
 CREATE TABLE IF NOT EXISTS DRIVE (
     id BIGSERIAL NOT NULL PRIMARY KEY,
     user_number VARCHAR(30) NOT NULL REFERENCES "USER"(pnumber),
-    car_number VARCHAR(10) NOT NULL REFERENCES CAR(cnumber),
+    driver_number VARCHAR(30) NOT NULL REFERENCES Driver(driver_number),
     drive_date TIMESTAMP WITH TIME ZONE CHECK(drive_date <= current_timestamp) DEFAULT current_timestamp,
     duration INTERVAL,
     price MONEY,

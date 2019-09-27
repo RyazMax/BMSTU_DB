@@ -1,6 +1,13 @@
 package models
 
-import "../database"
+import (
+	"math/rand"
+
+	"github.com/icrowley/fake"
+
+	"../database"
+	"../myfaker"
+)
 
 // User - user struct
 type User struct {
@@ -23,6 +30,16 @@ func (u *User) Insert(db *database.DB) (err error) {
 }
 
 // GenerateUser - randomly generate user info
-func GenerateUser() User {
-	return User{}
+func GenerateUser() (u User) {
+	if rand.Intn(2) == 0 {
+		u.Fname = fake.MaleFirstName()
+		u.Sname = fake.MaleLastName()
+		u.Patronymic = fake.MalePatronymic()
+	} else {
+		u.Fname = fake.FemaleFirstName()
+		u.Sname = fake.FemaleLastName()
+		u.Patronymic = fake.FemalePatronymic()
+	}
+	u.Pnumber = myfaker.MobilePhoneNumber("8")
+	return u
 }
