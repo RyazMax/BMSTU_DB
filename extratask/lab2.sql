@@ -71,6 +71,18 @@ VALUES (4, 'A', '2018-09-01', '2018-09-15');
 INSERT INTO table2(id, var2, valid_from, valid_to)
 VALUES (4, 'B', '2018-09-16', '5999-12-31');
 
+-- Пятый кейс (Пересечение в 1 день)
+-- Первая таблица
+INSERT INTO table1(id, var1, valid_from, valid_to)
+VALUES (5, 'A', '2018-09-01', '2018-09-15');
+INSERT INTO table1(id, var1, valid_from, valid_to)
+VALUES (5, 'B', '2018-09-16', '5999-12-31');
+-- Вторая таблица
+INSERT INTO table2(id, var2, valid_from, valid_to)
+VALUES (5, 'A', '2018-09-01', '2018-09-14');
+INSERT INTO table2(id, var2, valid_from, valid_to)
+VALUES (5, 'B', '2018-09-15', '5999-12-31');
+
 
 SELECT t1.id, var1, var2, 
 GREATEST(t1.valid_from, t2.valid_from) AS valid_from,
@@ -78,4 +90,4 @@ LEAST(t1.valid_to, t2.valid_to) AS valid_to
 FROM table1 AS t1
 JOIN table2 AS t2
 ON t1.id = t2.id
-WHERE (t1.valid_from, t1.valid_to) OVERLAPS (t2.valid_from, t2.valid_to);
+WHERE GREATEST(t1.valid_from, t2.valid_from) <= LEAST(t1.valid_to, t2.valid_to);
